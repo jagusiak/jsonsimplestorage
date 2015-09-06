@@ -64,10 +64,10 @@ abstract class JSONSimpleStorage {
         }
         
         // load data
-        $this->idGen = JSONStorage::getField($content, self::IDGEN_FIELD, 0);
-        $this->data = JSONStorage::getField($content, self::DATA_FIELD, []);
-        $this->many = JSONStorage::getField($content, self::MANY_FIELD, []);
-        $this->one = JSONStorage::getField($content, self::ONE_FIELD, []);
+        $this->idGen = self::getField($content, self::IDGEN_FIELD, 0);
+        $this->data = self::getField($content, self::DATA_FIELD, []);
+        $this->many = self::getField($content, self::MANY_FIELD, []);
+        $this->one = self::getField($content, self::ONE_FIELD, []);
         
     }
     

@@ -2,7 +2,7 @@
     "name": "jagusiak/jsonsimplestorage",
     "autoload": {
         "psr-0" : {
-            "Jagusuak\\JSONSimpleStorage" : "src"
+            "Jagusiak\\JSONSimpleStorage" : "src"
         }
     }
 }
