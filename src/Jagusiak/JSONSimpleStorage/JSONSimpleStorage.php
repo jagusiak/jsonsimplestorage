@@ -9,19 +9,44 @@ namespace Jagusiak\JSONSimpleStorage;
  */
 abstract class JSONSimpleStorage {
     
-    // class name
+    /**
+     * Class name 
+     * @var string 
+     */
     private $class;
     
-    // id generator (it is not used when ids are given from outside)
+    /**
+     * Id generator (it is not used when ids are given from outside), starts from 0
+     * @var int 
+     */
     private $idGen;
     
-    // array which maps classname to id - it used to determine realted data
+    /**
+     * Array used to determine realtion 'one'
+     * Its structure is as follows:
+     * [record_id][foreign_storage] = foreign_id
+     * - record_id - current storage record id
+     * - foreign_sotrage - classname of foreign stroage (it can be the same in case of self realtion)
+     * - foreign_id - id of record in foreign storage is in relation one
+     * @var array[] 
+     */
     private $one;
     
-    // used to determines all related data
+    /**
+     * Array used to determine realtion 'many'
+     * Its structure is as follows:
+     * [record_id][foreign_storage][] = foreign_id
+     * - record_id - current storage record id
+     * - foreign_sotrage - classname of foreign stroage (it can be the same in case of self realtion)
+     * - foreign_id - id of record in foreign storage which is in relation many
+     * @var array[] 
+     */
     private $many;
     
-    // stores records
+    /**
+     * Array which stores records, key = id, value = record
+     * @var array
+     */
     private $data;
     
     /**
@@ -40,34 +65,33 @@ abstract class JSONSimpleStorage {
     /**
      * JSON Store fileds names
      */
-    const IDGEN_FIELD = 'idGen';
-    const DATA_FIELD = 'data';
-    const MANY_FIELD = 'many';
-    const ONE_FIELD = 'one';
+    const FIELD_IDGEN = 'idGen';
+    const FIELD_DATA = 'data';
+    const FIELD_MANY = 'many';
+    const FIELD_ONE = 'one';
     
-    // Determines where json are stored, in the same directory by default
+    // Determines where json is stored (it is the same directory as class by default)
     const STORE_DIR = '';
     
     /**
-     * default constructor
+     * Default constructor
      */
     private function __construct() {
         // store class name
         $this->class = get_class($this); 
         
         // read file
-        $filename = static::STORE_DIR . $this->class . '.json';
-        if (file_exists($filename)) {
-            $content = json_decode(@file_get_contents($filename), true);
+        if (file_exists($filename = static::STORE_DIR . $this->class . '.json')) {
+            $content = json_decode(file_get_contents($filename), true);
         } else {
             $content = [];
         }
         
         // load data
-        $this->idGen = self::getField($content, self::IDGEN_FIELD, 0);
-        $this->data = self::getField($content, self::DATA_FIELD, []);
-        $this->many = self::getField($content, self::MANY_FIELD, []);
-        $this->one = self::getField($content, self::ONE_FIELD, []);
+        $this->idGen = self::getField($content, self::FIELD_IDGEN, 0);
+        $this->data = self::getField($content, self::FIELD_DATA, []);
+        $this->many = self::getField($content, self::FIELD_MANY, []);
+        $this->one = self::getField($content, self::FIELD_ONE, []);
         
     }
     
@@ -173,12 +197,12 @@ abstract class JSONSimpleStorage {
     /**
      * Gets all records which has one object
      * 
-     * @param \JSONStorage $object
+     * @param \JSONSimpleStorage $object
      * @param mixed $foreignId
      * @param bool $cascade
      * @return array[]
      */
-    public function getAllWhichHasOne($foreignId, \JSONStorage $object, $cascade = false) {
+    public function getAllWhichHasOne($foreignId, \JSONSimpleStorage $object, $cascade = false) {
         // default value
         $result = [];
         
@@ -195,13 +219,13 @@ abstract class JSONSimpleStorage {
     }
     
     /**
-     * Sets realtion has one
+     * Sets relation has one
      * 
      * @param mixed $id
-     * @param \JSONStorage $object
+     * @param \JSONSimpleStorage $object
      * @param mixed $foreignId
      */
-    public function hasOne($id, \JSONStorage $object, $foreignId) {
+    public function hasOne($id, \JSONSimpleStorage $object, $foreignId) {
         // init one filed
         if (!isset($this->one[$id])) {
             $this->one[$id] = [];
@@ -227,16 +251,16 @@ abstract class JSONSimpleStorage {
     }
     
     /**
-     * Sets has many realtion
+     * Sets has many relation
      * 
      * @param mixed $id
-     * @param \JSONStorage $object
+     * @param \JSONSimpleStorage $object
      * @param mixed $foreignIds
      */
-    public function hasMany($id, \JSONStorage $object, $foreignIds) {
+    public function hasMany($id, \JSONSimpleStorage $object, $foreignIds) {
         // set has one on foreign data
-        foreach ($foreignIds as $foreignIds) {
-            $object->hasOne($foreignIds, $this, $id);
+        foreach ($foreignIds as $foreignId) {
+            $object->hasOne($foreignId, $this, $id);
         }
     }
     
@@ -245,17 +269,17 @@ abstract class JSONSimpleStorage {
      */
     private function store() {
         file_put_contents(static::STORE_DIR . $this->class . '.json', json_encode([
-            self::IDGEN_FIELD => $this->idGen,
-            self::DATA_FIELD => $this->data,
-            self::MANY_FIELD => $this->many,
-            self::ONE_FIELD => $this->one,
+            self::FIELD_IDGEN => $this->idGen,
+            self::FIELD_DATA => $this->data,
+            self::FIELD_MANY => $this->many,
+            self::FIELD_ONE => $this->one,
         ]));
     }
     
     /**
      * Return instance of class
      * 
-     * @return JSONStorage
+     * @return \JSONSimpleStorage
      */
     public static final function getInstance() {
         $class = get_called_class();
@@ -266,21 +290,19 @@ abstract class JSONSimpleStorage {
      * Saves data (all!)
      */
     public static final function save() {
-        foreach (self::$dirty as $class => $isDirty) {
-            if ($isDirty) {
-                self::$instances[$class]->store();
-            }
-            self::$dirty[$class] = false;
+        foreach (self::$dirty as $class => $true) {
+            self::$instances[$class]->store();
+            unset(self::$dirty[$class]);
         }
     }
     
     /**
      * Retrieves data from array with setting default value
      * 
-     * @param type $data
-     * @param type $key
-     * @param type $default
-     * @return type
+     * @param array $data
+     * @param string $key
+     * @param mixed $default
+     * @return mixed
      */
     private static final function getField($data, $key, $default = null) {
         return isset($data[$key]) ? $data[$key] : $default; 
