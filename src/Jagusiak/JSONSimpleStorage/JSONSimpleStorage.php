@@ -22,22 +22,22 @@ abstract class JSONSimpleStorage {
     private $idGen;
     
     /**
-     * Array used to determine realtion 'one'
+     * Array used to determine relation 'one'
      * Its structure is as follows:
      * [record_id][foreign_storage] = foreign_id
      * - record_id - current storage record id
-     * - foreign_sotrage - classname of foreign stroage (it can be the same in case of self realtion)
+     * - foreign_sotrage - classname of foreign stroage (it can be the same in case of self relation)
      * - foreign_id - id of record in foreign storage is in relation one
      * @var array[] 
      */
     private $one;
     
     /**
-     * Array used to determine realtion 'many'
+     * Array used to determine relation 'many'
      * Its structure is as follows:
      * [record_id][foreign_storage][] = foreign_id
      * - record_id - current storage record id
-     * - foreign_sotrage - classname of foreign stroage (it can be the same in case of self realtion)
+     * - foreign_sotrage - classname of foreign stroage (it can be the same in case of self relation)
      * - foreign_id - id of record in foreign storage which is in relation many
      * @var array[] 
      */
@@ -188,7 +188,7 @@ abstract class JSONSimpleStorage {
         $result = self::getField($this->data, $id, null);
         if ($cascade && null !== $result && isset($this->one[$id])) {
             foreach ($this->one[$id] as $class => $foreignId) {
-                $result = array_merge($class::getInstance()->getById($foreignId, true), $result);
+                $result = array_merge($class::getInstance()->getById($foreignId, $cascade), $result);
             }
         }
         return $result;
@@ -206,9 +206,9 @@ abstract class JSONSimpleStorage {
         // default value
         $result = [];
         
-        // check if foreign object has realtions with current one
+        // check if foreign object has relations with current one
         if (isset($object->many[$foreignId][$this->class])) {
-            // iterate through all realted data
+            // iterate through all related data
             foreach ($object->many[$foreignId][$this->class] as $id) {
                 if (null !== ($item = $this->getById($id, $cascade))) {
                     $result[$id] = $item;
@@ -255,9 +255,9 @@ abstract class JSONSimpleStorage {
      * 
      * @param mixed $id
      * @param \JSONSimpleStorage $object
-     * @param mixed $foreignIds
+     * @param mixed[] $foreignIds
      */
-    public function hasMany($id, \JSONSimpleStorage $object, $foreignIds) {
+    public function hasMany($id, \JSONSimpleStorage $object, array $foreignIds) {
         // set has one on foreign data
         foreach ($foreignIds as $foreignId) {
             $object->hasOne($foreignId, $this, $id);
