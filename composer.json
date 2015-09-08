@@ -1,5 +1,20 @@
 {
     "name": "jagusiak/jsonsimplestorage",
+    "type": "library",
+    "description": "JSONSimpleStorage is a simple solution for data storage based on files, perfect for small projects where database system are not necessary or available.",
+    "keywords": ["storage","simple","json","database","relations"],
+    "homepage": "https://github.com/jagusiak/jsonsimplestorage",
+    "license": "GNU",
+    "authors": [
+        {
+            "name": "Seweryn Jagusiak",
+            "email": "jagusiak@gmail.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0"
+    },
     "autoload": {
         "psr-0" : {
             "Jagusiak\\JSONSimpleStorage" : "src"
