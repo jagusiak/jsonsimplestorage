@@ -4,7 +4,7 @@
     "description": "JSONSimpleStorage is a simple solution for data storage based on files, perfect for small projects where database system are not necessary or available.",
     "keywords": ["storage","simple","json","database","relations"],
     "homepage": "https://github.com/jagusiak/jsonsimplestorage",
-    "license": "GNU",
+    "license": "MIT",
     "authors": [
         {
             "name": "Seweryn Jagusiak",
