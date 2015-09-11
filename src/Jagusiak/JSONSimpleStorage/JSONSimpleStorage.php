@@ -197,12 +197,12 @@ abstract class JSONSimpleStorage {
     /**
      * Gets all records which has one object
      * 
-     * @param \JSONSimpleStorage $object
+     * @param JSONSimpleStorage $object
      * @param mixed $foreignId
      * @param bool $cascade
      * @return array[]
      */
-    public function getAllWhichHasOne($foreignId, \JSONSimpleStorage $object, $cascade = false) {
+    public function getAllWhichHasOne($foreignId, JSONSimpleStorage $object, $cascade = false) {
         // default value
         $result = [];
         
@@ -222,10 +222,10 @@ abstract class JSONSimpleStorage {
      * Sets relation has one
      * 
      * @param mixed $id
-     * @param \JSONSimpleStorage $object
+     * @param JSONSimpleStorage $object
      * @param mixed $foreignId
      */
-    public function hasOne($id, \JSONSimpleStorage $object, $foreignId) {
+    public function hasOne($id, JSONSimpleStorage $object, $foreignId) {
         // init one filed
         if (!isset($this->one[$id])) {
             $this->one[$id] = [];
