@@ -70,9 +70,6 @@ abstract class JSONSimpleStorage {
     const FIELD_MANY = 'many';
     const FIELD_ONE = 'one';
     
-    // Determines where json is stored (it is the same directory as class by default)
-    const STORE_DIR = '';
-    
     /**
      * Default constructor
      */
@@ -265,12 +262,21 @@ abstract class JSONSimpleStorage {
     }
     
     /**
+     * Returns storage path
+     * 
+     * @return string Path
+     */
+    public function getDir() {
+        return dirname(__FILE__);
+    }
+    
+    /**
      * Returns json file path
      * 
      * @return string File path
      */
     private function getFilename() {
-        return str_replace('%DIR%', dirname(__FILE__) ,static::STORE_DIR) . $this->class . '.json';
+        return $this->getDir() . '/' . $this->class . '.json';
     }
     
     /**
