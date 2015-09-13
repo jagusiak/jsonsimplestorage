@@ -81,7 +81,7 @@ abstract class JSONSimpleStorage {
         $this->class = get_class($this); 
         
         // read file
-        if (file_exists($filename = static::STORE_DIR . $this->class . '.json')) {
+        if (file_exists($filename = $this->getFilename())) {
             $content = json_decode(file_get_contents($filename), true);
         } else {
             $content = [];
@@ -265,10 +265,19 @@ abstract class JSONSimpleStorage {
     }
     
     /**
+     * Returns json file path
+     * 
+     * @return string File path
+     */
+    private function getFilename() {
+        return str_replace('%DIR%', dirname(__FILE__) ,static::STORE_DIR) . $this->class . '.json';
+    }
+    
+    /**
      * Stores data in file
      */
     private function store() {
-        file_put_contents(static::STORE_DIR . $this->class . '.json', json_encode([
+        file_put_contents($this->getFilename(), json_encode([
             self::FIELD_IDGEN => $this->idGen,
             self::FIELD_DATA => $this->data,
             self::FIELD_MANY => $this->many,
